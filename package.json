@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Buwaro-bots/Bot-Runeterra#readme",
   "dependencies": {
+    "axios": "^0.24.0",
     "discord.js": "^12.5.3"
   }
 }

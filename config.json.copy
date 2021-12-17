@@ -1,5 +1,6 @@
 {
     "discordToken" : "aaa",
+    "riotToken": "",
     "admin" : "mon id",
     "prefix" : ";lor "
 }
