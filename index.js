@@ -1,13 +1,28 @@
 const config = require('./config.json'); // This file contains the connection tokens and other necessary infos
 
-const Discord = require("discord.js");
-const client = new Discord.Client();
+const { decode, encode } = require('lorguardian-deckcode');
 
 let userList = require('./data/user-list.json');
+const cardSet1 = require('./data/cardlist/en_us/data/set1-en_us.json');
+const cardSet2 = require('./data/cardlist/en_us/data/set2-en_us.json');
+const cardSet3 = require('./data/cardlist/en_us/data/set3-en_us.json');
+const cardSet4 = require('./data/cardlist/en_us/data/set4-en_us.json');
+const cardSet5 = require('./data/cardlist/en_us/data/set5-en_us.json');
+const cardSets = cardSet1.concat(cardSet2).concat(cardSet3).concat(cardSet4).concat(cardSet5);
+
+let cardListbyCode = [];
+cardSets.forEach(card => {
+    cardListbyCode[card.cardCode] = card;
+});
+
+
 const fs = require('fs');
 
 const axios = require('axios');
-const { info } = require('console');
+//const { info } = require('console');
+
+const Discord = require("discord.js");
+const client = new Discord.Client();
 
 let prefix = config.prefix; 
 
@@ -98,9 +113,17 @@ client.on("message", (message) => {
                         throw("erreur");
                     }
                     player = singleMatch.info.players[0].puuid === user ? singleMatch.info.players[1] : singleMatch.info.players[0];
+
+                    const deckArray = decode(player.deck_code);
+                    console.log(deckArray);
+
+                    let deckList = "";
+                    deckArray.forEach(card => {
+                        deckList += `X${card.count} => ${cardListbyCode[card.code].name}\n`
+                    });
                     
                     urlMobalytics = `https://lor.mobalytics.gg/fr_fr/decks/code/${player.deck_code}`;
-                    message.channel.send(`${message.author.toString()}: ${urlMobalytics}`);
+                    message.channel.send(`${message.author.toString()}: Deckcode: ${player.deck_code}\n${urlMobalytics}\n${deckList}`);
                 })
             })
         }
