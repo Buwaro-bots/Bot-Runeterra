@@ -14,7 +14,9 @@ let cardListbyCode = [];
 cardSets.forEach(card => {
     cardListbyCode[card.cardCode] = card;
 });
-
+const orderSupertypes =  ["Champion", ""];
+const orderType = ["Unit", "Spell", "Landmark"];
+const manaCost = {0:"⓪", 1:"①", 2:"②", 3:"③", 4:"④", 5:"⑤", 6:"⑥", 7:"⑦", 8:"⑧", 9:"⑨", 10:"⑩", 11:"⑪", 12:"⑫", 13:"⑬"}// 14+: ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳
 
 const fs = require('fs');
 
@@ -68,7 +70,7 @@ client.on("message", (message) => {
 
         else if (command === "match") {
             if (!userList.hasOwnProperty(message.author.id)) {
-                message.channel.send(`${message.author.toString()}: Register first with **${prefix} username#tag**.`);
+                message.channel.send(`${message.author.toString()}: Register first with **${prefix} register username#tag**.`);
                 throw("erreur");
             }
             const user = userList[message.author.id];
@@ -115,11 +117,27 @@ client.on("message", (message) => {
                     player = singleMatch.info.players[0].puuid === user ? singleMatch.info.players[1] : singleMatch.info.players[0];
 
                     const deckArray = decode(player.deck_code);
+
+                    deckArray.sort(function(a, b) {
+                        return b.count - a.count;
+                    });
+                    deckArray.sort(function(a, b) {
+                        return cardListbyCode[a.code].cost - cardListbyCode[b.code].cost;
+                    });
+
+                    deckArray.sort(function(a, b){
+                        return orderType.indexOf(cardListbyCode[a.code].type) - orderType.indexOf(cardListbyCode[b.code].type);
+                    });
+
+                    deckArray.sort(function(a, b){
+                        return orderSupertypes.indexOf(cardListbyCode[a.code].supertype) - orderSupertypes.indexOf(cardListbyCode[b.code].supertype);
+                    });
+
                     console.log(deckArray);
 
                     let deckList = "";
                     deckArray.forEach(card => {
-                        deckList += `X${card.count} => ${cardListbyCode[card.code].name}\n`
+                        deckList += `${manaCost[cardListbyCode[card.code].cost]}X${card.count} => ${cardListbyCode[card.code].name}\n`
                     });
                     
                     urlMobalytics = `https://lor.mobalytics.gg/fr_fr/decks/code/${player.deck_code}`;

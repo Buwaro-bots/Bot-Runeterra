@@ -106,3 +106,4 @@ dist
 # Mes fichiers
     $ cat .gitignore
 config.json
+data/user-list.json
