@@ -1,0 +1,22 @@
+{
+  "name": "bot-runeterra",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Buwaro-bots/Bot-Runeterra.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Buwaro-bots/Bot-Runeterra/issues"
+  },
+  "homepage": "https://github.com/Buwaro-bots/Bot-Runeterra#readme",
+  "dependencies": {
+    "discord.js": "^12.5.3"
+  }
+}
