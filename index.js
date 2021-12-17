@@ -59,7 +59,7 @@ client.on("message", (message) => {
             const user = userList[message.author.id];
             const urlMatches = `https://europe.api.riotgames.com/lor/match/v1/matches/by-puuid/${user}/ids`;
             
-            const numberOfGame = args.length > 0 ? parseInt(args[0]) - 1 : 0;
+            let numberOfGame = args.length > 0 ? parseInt(args[0]) - 1 : 0;
             axios.get(urlMatches, {
                 params: {
                     "api_key" : config.riotToken
@@ -69,18 +69,34 @@ client.on("message", (message) => {
                 return listMatches.data; // response.data instead of response.json() with fetch			
             })			
             .then(function(listMatches) {	
+                numberOfGame = Math.min(numberOfGame, listMatches.length -1 );
                 const matchID = listMatches[numberOfGame];
                 const urlSingle = `https://europe.api.riotgames.com/lor/match/v1/matches/${matchID}`;
                 axios.get(urlSingle, {
                     params: {
                         "api_key" : config.riotToken
                     }
-                })			
-                .then(function(singleMatch) {			
+                })	
+                .catch(function (error) {
+                    if (error.response) {
+                      console.log(error.response.data);
+                      if(error.response.data.status.status_code == 404) {
+                        message.channel.send(`${message.author.toString()}: This game cannot be found, probably a game against a friend.`);
+                      }
+                      else {
+                        message.react('❌');
+                      }
+                    }})	
+                .then(function(singleMatch) {	
                     return singleMatch.data; // response.data instead of response.json() with fetch			
                 })			
                 .then(function(singleMatch) {		
                     console.log(singleMatch);
+
+                    if(singleMatch.info.game_mode !== "Constructed") {
+                        message.channel.send(`${message.author.toString()}: This game wasn't a constructed game.`);
+                        throw("erreur");
+                    }
                     player = singleMatch.info.players[0].puuid === user ? singleMatch.info.players[1] : singleMatch.info.players[0];
                     
                     urlMobalytics = `https://lor.mobalytics.gg/fr_fr/decks/code/${player.deck_code}`;
