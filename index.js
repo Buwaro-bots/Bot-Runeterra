@@ -3,11 +3,11 @@ const config = require('./config.json'); // This file contains the connection to
 const { decode, encode } = require('lorguardian-deckcode');
 
 let userList = require('./data/user-list.json');
-const cardSet1 = require('./data/cardlist/en_us/data/set1-en_us.json');
-const cardSet2 = require('./data/cardlist/en_us/data/set2-en_us.json');
-const cardSet3 = require('./data/cardlist/en_us/data/set3-en_us.json');
-const cardSet4 = require('./data/cardlist/en_us/data/set4-en_us.json');
-const cardSet5 = require('./data/cardlist/en_us/data/set5-en_us.json');
+const cardSet1 = require('./data/cardlist/en_us/data/set1-fr_fr.json');
+const cardSet2 = require('./data/cardlist/en_us/data/set2-fr_fr.json');
+const cardSet3 = require('./data/cardlist/en_us/data/set3-fr_fr.json');
+const cardSet4 = require('./data/cardlist/en_us/data/set4-fr_fr.json');
+const cardSet5 = require('./data/cardlist/en_us/data/set5-fr_fr.json');
 const cardSets = cardSet1.concat(cardSet2).concat(cardSet3).concat(cardSet4).concat(cardSet5);
 
 let cardListbyCode = [];
@@ -15,7 +15,7 @@ cardSets.forEach(card => {
     cardListbyCode[card.cardCode] = card;
 });
 const orderSupertypes =  ["Champion", ""];
-const orderType = ["Unit", "Spell", "Landmark"];
+const orderType = ["Unité", "Sort", "Site"];
 const manaCost = {0:"⓪", 1:"①", 2:"②", 3:"③", 4:"④", 5:"⑤", 6:"⑥", 7:"⑦", 8:"⑧", 9:"⑨", 10:"⑩", 11:"⑪", 12:"⑫", 13:"⑬"}// 14+: ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳
 
 const fs = require('fs');
@@ -70,7 +70,7 @@ client.on("message", (message) => {
 
         else if (command === "match") {
             if (!userList.hasOwnProperty(message.author.id)) {
-                message.channel.send(`${message.author.toString()}: Register first with **${prefix} username#tag**.`);
+                message.channel.send(`${message.author.toString()}: Il faut d'abord s'enregistrer avec **${prefix} register username#tag**.`);
                 throw("erreur");
             }
             const user = userList[message.author.id];
@@ -98,7 +98,7 @@ client.on("message", (message) => {
                     if (error.response) {
                       console.log(error.response.data);
                       if(error.response.data.status.status_code == 404) {
-                        message.channel.send(`${message.author.toString()}: This game cannot be found, probably a game against a friend.`);
+                        message.channel.send(`${message.author.toString()}: Ce match ne peut pas être trouvé, probablement un match avec un ami.`);
                       }
                       else {
                         message.react('❌');
@@ -111,7 +111,7 @@ client.on("message", (message) => {
                     console.log(singleMatch);
 
                     if(singleMatch.info.game_mode !== "Constructed") {
-                        message.channel.send(`${message.author.toString()}: This game wasn't a constructed game.`);
+                        message.channel.send(`${message.author.toString()}: Ce match n'est pas en mode construit.`);
                         throw("erreur");
                     }
                     player = singleMatch.info.players[0].puuid === user ? singleMatch.info.players[1] : singleMatch.info.players[0];
@@ -141,7 +141,7 @@ client.on("message", (message) => {
                     });
                     
                     urlMobalytics = `https://lor.mobalytics.gg/fr_fr/decks/code/${player.deck_code}`;
-                    message.channel.send(`${message.author.toString()}: Deckcode: ${player.deck_code}\n${urlMobalytics}\n${deckList}`);
+                    message.channel.send(`${message.author.toString()}: Code: ${player.deck_code}\n${urlMobalytics}\n${deckList}`);
                 })
             })
         }
