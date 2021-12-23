@@ -84,7 +84,17 @@ client.on("message", (message) => {
             })			
             .then(function(listMatches) {			
                 return listMatches.data; // response.data instead of response.json() with fetch			
-            })			
+            })
+            .catch(function (error) {
+                if (error.response) {
+                  console.log(error.response.data);
+                  if(error.response.data.status.status_code == 403) {
+                    message.channel.send(`${message.author.toString()}: Api token not valid, please contact the admin of this bot.`);
+                  }
+                  else {
+                    message.react('❌');
+                  }
+                }})
             .then(function(listMatches) {	
                 numberOfGame = Math.min(numberOfGame, listMatches.length -1 );
                 const matchID = listMatches[numberOfGame];
@@ -103,7 +113,7 @@ client.on("message", (message) => {
                       else {
                         message.react('❌');
                       }
-                    }})	
+                    }})
                 .then(function(singleMatch) {	
                     return singleMatch.data; // response.data instead of response.json() with fetch			
                 })			
