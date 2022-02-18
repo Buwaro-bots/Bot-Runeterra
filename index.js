@@ -47,6 +47,8 @@ client.on("message", (message) => {
     let command = args.shift().toLowerCase();
     try {
 
+        // Lets the admin update the Riot api token.
+        // WARNING: DO NOT DO THIS IN A PUBLIC CHANNEL. Do it in dm or in a private channel with only you and the bot.
         if (command === "token" && args.length === 1 && message.author.id == config.admin ) {
             config.riotToken = args[0];
             let writer = JSON.stringify(config, null, 4);
@@ -55,6 +57,8 @@ client.on("message", (message) => {
             console.log("Token successfully changed.")
         }
 
+        // Lets a user register their Riot account name so we can get the PUUID.
+        // The format is username#tag.
         else if(command === "register") {
 
             if (!args.length == 1 || !args[0].includes("#")) {
@@ -62,7 +66,6 @@ client.on("message", (message) => {
             }
 
             else {
-
                 const username = args[0].replace('#', '/')
                 const url = `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${username}`;			
                 axios.get(url, {
@@ -95,6 +98,8 @@ client.on("message", (message) => {
             }
         }
 
+        // Lets a user get the deck their last opponent played.
+        // They can add a number of game in case the deck they want isn't from their last opponent.
         else if (command === "match") {
             if (!userList.hasOwnProperty(message.author.id)) {
                 message.channel.send(`${message.author.toString()}: Register first with **${prefix} register username#tag**.`);
@@ -110,7 +115,7 @@ client.on("message", (message) => {
                 }
             })			
             .then(function(listMatches) {			
-                return listMatches.data; // response.data instead of response.json() with fetch			
+                return listMatches.data; 
             })
             .catch(function (error) {
                 if (error.response) {
@@ -155,6 +160,7 @@ client.on("message", (message) => {
 
                     const deckArray = decode(player.deck_code);
 
+                    // The deck is sorted by Champions / units / spells / landmarks, then by cost, then by count.
                     deckArray.sort(function(a, b) {
                         return b.count - a.count;
                     });
@@ -186,38 +192,6 @@ client.on("message", (message) => {
             })
         }
 
-
-        else if (false /*command === "last"*/) {
-            const user = userList[message.author.id];
-            const urlMatches = `https://europe.api.riotgames.com/lor/match/v1/matches/by-puuid/${user}/ids`;			
-            axios.get(urlMatches, {
-                params: {
-                    "api_key" : config.riotToken
-                }
-              })			
-            .then(function(listMatches) {			
-                return listMatches.data; // response.data instead of response.json() with fetch			
-            })			
-            .then(function(listMatches) {		
-                console.log(listMatches);
-                listMatches.forEach(matchID => {
-                    try{
-                    const urlSingle = `https://europe.api.riotgames.com/lor/match/v1/matches/${matchID}`;
-                                axios.get(urlSingle, {
-                                    params: {
-                                        "api_key" : config.riotToken
-                                    }
-                                })			
-                                .then(function(singleMatch) {			
-                                    return singleMatch.data; // response.data instead of response.json() with fetch			
-                                })			
-                                .then(function(singleMatch) {		
-                                    console.log(singleMatch);
-                                })
-                    } catch (e){}
-                })
-            })
-        }
         else {
             console.log("Nothing.")
         }
