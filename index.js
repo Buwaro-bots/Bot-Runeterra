@@ -56,30 +56,49 @@ client.on("message", (message) => {
         }
 
         else if(command === "register") {
-            const username = args[0].replace('#', '/')
-            const url = `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${username}`;			
-            axios.get(url, {
-                params: {
-                    "api_key" : config.riotToken
-                }
-              })			
-            .then(function(response) {			
-                return response.data; // response.data instead of response.json() with fetch			
-            })			
-            .then(function(response) {		
-                console.log(response);
 
-                userList[message.author.id] = response.puuid;
+            if (!args.length == 1 || !args[0].includes("#")) {
+                message.channel.send(`${message.author.toString()}: Username not valid, the format is username#tag.`);
+            }
 
-                let writer = JSON.stringify(userList, null, 4);
-                fs.writeFileSync('./data/user-list.json', writer);
-            })
+            else {
+
+                const username = args[0].replace('#', '/')
+                const url = `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${username}`;			
+                axios.get(url, {
+                    params: {
+                        "api_key" : config.riotToken
+                    }
+                })
+                .catch(function (error) {
+                    if (error.response) {
+                    console.log(error.response.data);
+                    if(error.response.data.status.status_code == 403) {
+                        message.channel.send(`${message.author.toString()}: Api token not valid, please contact the admin of this bot.`);
+                    }
+                    else {
+                        message.channel.send(`${message.author.toString()}: Username not valid, the format is username#tag.`);
+                    }
+                    }})		
+                .then(function(response) {
+                    return response.data; // response.data instead of response.json() with fetch
+                })
+                .then(function(response) {
+                    console.log(response);
+
+                    userList[message.author.id] = response.puuid;
+
+                    let writer = JSON.stringify(userList, null, 4);
+                    fs.writeFileSync('./data/user-list.json', writer);
+                    message.react('👍');
+                })
+            }
         }
 
         else if (command === "match") {
             if (!userList.hasOwnProperty(message.author.id)) {
                 message.channel.send(`${message.author.toString()}: Register first with **${prefix} register username#tag**.`);
-                throw("erreur");
+                throw("Error");
             }
             const user = userList[message.author.id];
             const urlMatches = `https://europe.api.riotgames.com/lor/match/v1/matches/by-puuid/${user}/ids`;
@@ -130,7 +149,7 @@ client.on("message", (message) => {
 
                     if(singleMatch.info.game_mode !== "Constructed") {
                         message.channel.send(`${message.author.toString()}: This game wasn't a constructed game.`);
-                        throw("erreur");
+                        throw("Error.");
                     }
                     player = singleMatch.info.players[0].puuid === user ? singleMatch.info.players[1] : singleMatch.info.players[0];
 
@@ -160,6 +179,9 @@ client.on("message", (message) => {
                     
                     urlMobalytics = `https://lor.mobalytics.gg/fr_fr/decks/code/${player.deck_code}`;
                     message.channel.send(`${message.author.toString()}: Deckcode: ${player.deck_code}\n${urlMobalytics}\n${deckList}`);
+                })
+                .catch(function (error) {
+                    message.react('❌');
                 })
             })
         }
