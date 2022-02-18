@@ -47,7 +47,15 @@ client.on("message", (message) => {
     let command = args.shift().toLowerCase();
     try {
 
-        if(command === "register") {
+        if (command === "token" && args.length === 1 && message.author.id == config.admin ) {
+            config.riotToken = args[0];
+            let writer = JSON.stringify(config, null, 4);
+            fs.writeFileSync('./config.json', writer);
+            message.react('👍');
+            console.log("Token successfully changed.")
+        }
+
+        else if(command === "register") {
             const username = args[0].replace('#', '/')
             const url = `https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${username}`;			
             axios.get(url, {
